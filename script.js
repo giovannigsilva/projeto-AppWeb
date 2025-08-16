@@ -5,10 +5,9 @@ const sendMessageButton = document.querySelector("#send-message");
 const chatBotToggle = document.querySelector("#chat-toggle");
 const closeChatBot = document.querySelector("#close-chat");
 
-// Configuração da API (modelo Gemini)
-
-//const API_KEY = "SUA CHAVE AQUI"; // ← Substituir e remover o comentário
-                                                                            // Assume que API_KEY foi definida no .env.js
+// Configuração da API (modelo Gemini) 
+// SELECIONAR O TIPO DA IA QUE O USUARIO ESCOLHEU \/
+//const API_KEY = "SUA CHAVE AQUI"; //
 const API_URL = ``;
 
 // Objeto para armazenar a mensagem do usuário

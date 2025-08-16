@@ -10,10 +10,35 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&" />
 </head>
 <body>
+    
     <button id="chat-toggle">
         <span class="material-symbols-rounded">mode_comment</span>
         <span class="material-symbols-rounded">close</span>
     </button>
+
+    <div class="index-body">
+        <div class="cabecalho-body">
+            <h1>Aplicativo de Chat com IA</h1>
+        </div>
+
+        <div class="Api">
+            <form action="#" class="api-form">
+                <div class="api-control">
+                    <label>Qual IA deseja usar?</a> <br>
+                        <select name="ia-escolha">
+                            <option value="gpt">ChatGPT</option>
+                            <option value="gemini">Gemini</option>
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="claude">Claude</option>
+                        </select>
+                </div>
+                <div class="api-txt-btn">
+                    <input type="text" class="api-input" required placeholder="Digite aqui a chave da API"></input>
+                    <button type="submit" id="send-api" class="material-symbols-rounded">check_circle</button>
+                </div>
+            </form>
+        </div>        
+    </div>
     <div class="chatbot-popup">
         <!--Cabeçalho chatbot-->
         <div class="chat-header">
@@ -38,7 +63,7 @@
                 <div class="message-text"> Olá, como posso te ajudar no dia de hoje?</div>                          
             </div>        
         </div>
-        <!-- Rodapé chatbot  -->
+        <!-- Rodapé e resposta chatbot  -->
         <div class="chat-footer">
             <form action="#" class="chat-form">
                 <textarea class="message-input" required placeholder="Digite aqui..."></textarea>
@@ -52,7 +77,6 @@
    <!-- Link Emoji Mart, script pra selecionar emojis -->
    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
    <!-- Link script -->
-   <script src="env.js"></script>
    <script src = "script.js"></script> 
 </body>
 </html>

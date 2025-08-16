@@ -12,6 +12,141 @@
 body {
     min-height: 100vh;
     background: linear-gradient(#EEEEFF, #8eaac2);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+*/ .index-body {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+    box-sizing: border-box;
+    /* Garante que o padding não afete a largura total */
+}
+
+/*
+  ESTILOS DO CABEÇALHO
+  --------------------
+  Centraliza o título e adiciona um espaçamento inferior.
+*/
+.cabecalho-body {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.cabecalho-body h1 {
+    font-size: 1.8em;
+    color: #333;
+    margin: 0;
+}
+
+/*
+  ESTILOS DO FORMULÁRIO
+  ---------------------
+  Define o layout do formulário e dos controles.
+*/
+.api-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/*
+  ESTILOS DOS CONTROLES DO FORMULÁRIO (LABEL E SELECT)
+  ----------------------------------------------------
+*/
+.api-control label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.api-control select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #f9f9f9;
+}
+
+/*
+  ESTILOS DO INPUT E DO BOTÃO
+  ---------------------------
+  Utiliza Flexbox para alinhar o input e o botão lado a lado.
+  Garante que ambos tenham a mesma altura e fiquem alinhados.
+*/
+.api-txt-btn {
+    display: flex;
+    align-items: center;
+    /* Alinha verticalmente os itens */
+    gap: 10px;
+    /* Espaçamento entre o input e o botão */
+}
+
+.api-input {
+    flex-grow: 1;
+    /* Faz o input ocupar o espaço disponível */
+    padding: 12px 15px;
+    /* Aumenta o padding para um visual mais limpo */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    height: 40px;
+    /* Define uma altura fixa para ambos os elementos */
+    box-sizing: border-box;
+}
+
+.api-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+#send-api {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    /* Define a largura para ser igual à altura, tornando-o quadrado */
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    /* Transforma o botão em um círculo */
+    background-color: #28a745;
+    color: #fff;
+    font-size: 1.5em;
+    /* Aumenta o tamanho do ícone */
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#send-api:hover {
+    background-color: #218838;
+}
+
+/*
+  FONTES DE ÍCONES (para garantir que o ícone apareça)
+  ----------------------------------------------------
+  Ajusta o estilo para renderizar o ícone de 'check_circle' corretamente.
+*/
+.material-symbols-rounded {
+    font-family: 'Material Symbols Rounded', sans-serif;
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
 }
 
 #chat-toggle {
