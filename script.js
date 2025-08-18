@@ -185,6 +185,31 @@ apiForm.addEventListener("submit", (e) => {
     alert(`✅ Configuração salva: ${IA_CHOSEN.toUpperCase()}`);
 });
 
+// Inicializa o seletor de emojis (usando EmojiMart)
+const picker = new EmojiMart.Picker({
+    theme: "light", // Tema claro
+    skinTonePosition: "none",
+    previewPosition: "none",
+    onEmojiSelect: (emoji) => {
+        // Insere o emoji na posição do cursor
+        const { selectionStart: start, selectionEnd: end } = messageInput;
+        messageInput.setRangeText(emoji.native, start, end, "end");
+        messageInput.focus(); // Mantém o foco no input
+    },
+    onClickOutside: (e) => {
+        // Alterna ou esconde o seletor de emojis
+        if (e.target.id === "emoji") {
+            document.body.classList.toggle("show-emoji");
+        } else {
+            document.body.classList.remove("show-emoji");
+        }
+    }
+});
+
+
+// Adiciona o seletor de emoji ao formulário
+document.querySelector(".chat-form").appendChild(picker);
+
 // Botão de enviar
 sendMessageButton.addEventListener("click", handleOutgoingMessage);
 
