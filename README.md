@@ -1,4 +1,4 @@
-# Aplicativo de Chat com IA
+# Aplicativo de Chat com IA - KORU PROGRAMA DESENVOLVE GRUPO BOTICARIO
 
 Este projeto é uma aplicação web simples que permite interagir com um modelo de linguagem da OpenAI. O usuário pode fazer uma pergunta, e a aplicação se conecta à API da OpenAI para buscar e exibir a resposta.
 
