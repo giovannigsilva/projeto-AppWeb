@@ -1,3 +1,4 @@
+// Ajustado por Daniella Nunes DESENVOLVE 3_5
 // Seleciona os elementos principais da interface do chat
 const messageInput = document.querySelector(".message-input");
 const chatBody = document.querySelector(".chat-body");
@@ -5,108 +6,147 @@ const sendMessageButton = document.querySelector("#send-message");
 const chatBotToggle = document.querySelector("#chat-toggle");
 const closeChatBot = document.querySelector("#close-chat");
 
-// Configuração da API (modelo Gemini) 
-// SELECIONAR O TIPO DA IA QUE O USUARIO ESCOLHEU \/
-//const API_KEY = "SUA CHAVE AQUI"; //
-const API_URL = ``;
+// Elementos do formulário de API
+const apiForm = document.querySelector(".api-form");
+const apiInput = document.querySelector(".api-input");
+const iaSelect = document.querySelector("select[name='ia-escolha']");
 
-// Objeto para armazenar a mensagem do usuário
-const userData = {
-    message: null
-}
+// Variáveis globais
+let API_KEY = "";
+let IA_CHOSEN = "";
 
+// URLs base
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+
+// Histórico do chat
+const chatHistory = [];
+
+// Armazena mensagem do usuário
+const userData = { message: null };
 const initialInputHeight = messageInput.scrollHeight;
 
-const chatHistory = [
-    {
-        role: "model",
-        parts: [{ text: `` }],
-    },
-];
-
-// Cria dinamicamente um elemento de mensagem com classes específicas
+// Cria dinamicamente um elemento de mensagem
 const createMessageElement = (content, ...classes) => {
     const div = document.createElement("div");
-    div.classList.add("message", ...classes); // Adiciona classes ao elemento
-    div.innerHTML = content; // Insere o conteúdo HTML
+    div.classList.add("message", ...classes);
+    div.innerHTML = content;
     return div;
-}
+};
 
-// Gera a resposta do bot utilizando a API
+// Gera a resposta do bot
 const generateBotResponse = async (incomingMessageDiv) => {
     const messageElement = incomingMessageDiv.querySelector(".message-text");
-    
-    //Add user message to chat history
+
+    // Adiciona mensagem do usuário ao histórico
     chatHistory.push({
         role: "user",
-        parts: [{ text: `Usando os detalhes fornecidos, responda a esta conversa: ${userData.message}` }],
+        content: userData.message
     });
-    // Configuração da requisição POST para a API do Gemini
-    const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            contents: chatHistory
-        })
-    }
 
     try {
-        // Envia a requisição e espera a resposta
-        const response = await fetch(API_URL, requestOptions);
+        let url = "";
+        let requestOptions = {};
+
+        if (IA_CHOSEN === "gemini") {
+            // Gemini espera o histórico em outro formato
+            const geminiHistory = chatHistory.map(msg => ({
+                role: msg.role === "user" ? "user" : "model",
+                parts: [{ text: msg.content }]
+            }));
+
+            url = `${GEMINI_URL}?key=${API_KEY}`;
+            requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: geminiHistory })
+            };
+
+        } else if (IA_CHOSEN === "openai") {
+            // OpenAI usa outro formato (chat/completions)
+            const openaiHistory = chatHistory.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            }));
+
+            url = OPENAI_URL;
+            requestOptions = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: openaiHistory
+                })
+            };
+
+        } else {
+            throw new Error("Selecione uma IA válida (Gemini ou OpenAI).");
+        }
+
+        const response = await fetch(url, requestOptions);
         const data = await response.json();
 
-        // Se houver erro na resposta, lança uma exceção
-        if (!response.ok) throw new Error(data.error.message);
+        if (!response.ok) throw new Error(data.error?.message || "Erro na API");
 
-        // Extrai e trata o texto da resposta da API
-        const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").trim();
+        let apiResponseText = "";
+
+        if (IA_CHOSEN === "gemini") {
+            apiResponseText = data.candidates[0].content.parts[0].text.trim();
+        } else if (IA_CHOSEN === "openai") {
+            apiResponseText = data.choices[0].message.content.trim();
+        }
+
         messageElement.innerText = apiResponseText;
 
-        //Add bot response to chat history
+        // Adiciona resposta ao histórico
         chatHistory.push({
-            role: "model",
-            parts: [{ text: apiResponseText }],
+            role: "assistant",
+            content: apiResponseText
         });
 
     } catch (error) {
-        // Em caso de erro, exibe a mensagem de erro no chat
-        console.log(error);
-        messageElement.innerText = error.message;
-        messageElement.style.color = "#ff0000"; // Exibe a mensagem em vermelho
+        console.error(error);
+        messageElement.innerText = "❌ " + error.message;
+        messageElement.style.color = "#ff0000";
     } finally {
-        // Remove o estado de "pensando" e rola o chat para o final
-        incomingMessageDiv.classList.remove(".thinking");
+        incomingMessageDiv.classList.remove("thinking");
         chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
     }
-}
+};
 
-// Lida com o envio da mensagem do usuário
+// Envio de mensagem do usuário
 const handleOutgoingMessage = (e) => {
-    e.preventDefault(); // Evita comportamento padrão do botão/formulário
-    userData.message = messageInput.value.trim(); // Armazena a mensagem
-    messageInput.value = ""; // Limpa o campo
-    messageInput.dispatchEvent(new Event("input")); // Dispara evento para ajuste da altura
+    e.preventDefault();
+    if (!API_KEY || !IA_CHOSEN) {
+        alert("Insira sua chave da API e selecione uma IA antes de usar!");
+        return;
+    }
 
-    // Cria o elemento da mensagem do usuário
+    userData.message = messageInput.value.trim();
+    if (!userData.message) return;
+
+    messageInput.value = "";
+    messageInput.dispatchEvent(new Event("input"));
+
+    // Mensagem do usuário
     const messageContent = `<div class="message-text"></div>`;
     const outgoingMessageDiv = createMessageElement(messageContent, "user-message");
     outgoingMessageDiv.querySelector(".message-text").textContent = userData.message;
     chatBody.appendChild(outgoingMessageDiv);
     chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
 
-    // Adiciona mensagem do bot simulando "pensando..."
+    // Mensagem de carregamento
     setTimeout(() => {
         const messageContent = `
-            <svg class="bot-avatar" width="50" height="50" viewBox="0 0 1024 1024">
-                    <path
-                        d="M738.3 287.6H285.7c-59 0-106.8 47.8-106.8 106.8v303.1c0 59 47.8 106.8 106.8 106.8h81.5v111.1c0 .7.8 1.1 1.4.7l166.9-110.6 41.8-.8h117.4l43.6-.4c59 0 106.8-47.8 106.8-106.8V394.5c0-59-47.8-106.9-106.8-106.9zM351.7 448.2c0-29.5 23.9-53.5 53.5-53.5s53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5-53.5-23.9-53.5-53.5zm157.9 267.1c-67.8 0-123.8-47.5-132.3-109h264.6c-8.6 61.5-64.5 109-132.3 109zm110-213.7c-29.5 0-53.5-23.9-53.5-53.5s23.9-53.5 53.5-53.5 53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5zM867.2 644.5V453.1h26.5c19.4 0 35.1 15.7 35.1 35.1v121.1c0 19.4-15.7 35.1-35.1 35.1h-26.5zM95.2 609.4V488.2c0-19.4 15.7-35.1 35.1-35.1h26.5v191.3h-26.5c-19.4 0-35.1-15.7-35.1-35.1zM561.5 149.6c0 23.4-15.6 43.3-36.9 49.7v44.9h-30v-44.9c-21.4-6.5-36.9-26.3-36.9-49.7 0-28.6 23.3-51.9 51.9-51.9s51.9 23.3 51.9 51.9z">
-                    </path>
+            <svg class="bot-avatar" width="35" height="35" viewBox="0 0 1024 1024">
+                <circle cx="50%" cy="50%" r="16" fill="#707ce7"/>
             </svg>
-            <div class="message-text"> 
+            <div class="message-text">
                 <div class="thinking-indicator">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 </div>
             </div>`;
 
@@ -114,12 +154,11 @@ const handleOutgoingMessage = (e) => {
         chatBody.appendChild(incomingMessageDiv);
         chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
 
-        // Chama a função para obter a resposta da API
         generateBotResponse(incomingMessageDiv);
-    }, 600); // Espera 600ms antes de mostrar a resposta do bot
-}
+    }, 500);
+};
 
-// Permite enviar a mensagem com a tecla Enter (sem Shift) em telas maiores
+// Envio com Enter
 messageInput.addEventListener("keydown", (e) => {
     const userMessage = e.target.value.trim();
     if (e.key === "Enter" && userMessage && !e.shiftKey && window.innerWidth > 768) {
@@ -127,41 +166,32 @@ messageInput.addEventListener("keydown", (e) => {
     }
 });
 
-// Ajusta dinamicamente a altura do campo de texto conforme o conteúdo
+// Ajuste altura do input
 messageInput.addEventListener("input", () => {
-    messageInput.style.height = `${initialInputHeight}px`; // Reseta altura
-    messageInput.style.height = `${messageInput.scrollHeight}px`; // Ajusta nova altura
-
-    // Ajusta borda arredondada conforme altura
-    document.querySelector(".-chat-form").style.borderRadius =
-        messageInput.scrollHeight > initialInputHeight ? "15px" : "32px";
+    messageInput.style.height = `${initialInputHeight}px`;
+    messageInput.style.height = `${messageInput.scrollHeight}px`;
 });
 
-// Inicializa o seletor de emojis (usando EmojiMart)
-const picker = new EmojiMart.Picker({
-    theme: "light", // Tema claro
-    skinTonePosition: "none",
-    previewPosition: "none",
-    onEmojiSelect: (emoji) => {
-        // Insere o emoji na posição do cursor
-        const { selectionStart: start, selectionEnd: end } = messageInput;
-        messageInput.setRangeText(emoji.native, start, end, "end");
-        messageInput.focus(); // Mantém o foco no input
-    },
-    onClickOutside: (e) => {
-        // Alterna ou esconde o seletor de emojis
-        if (e.target.id === "emoji") {
-            document.body.classList.toggle("show-emoji");
-        } else {
-            document.body.classList.remove("show-emoji");
-        }
+// Captura chave da API e IA escolhida
+apiForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    API_KEY = apiInput.value.trim();
+    IA_CHOSEN = iaSelect.value;
+
+    if (!API_KEY || !IA_CHOSEN) {
+        alert("Por favor, insira a chave da API e selecione uma IA.");
+        return;
     }
+    alert(`✅ Configuração salva: ${IA_CHOSEN.toUpperCase()}`);
 });
 
-// Adiciona o seletor de emoji ao formulário
-document.querySelector(".chat-form").appendChild(picker);
+// Botão de enviar
+sendMessageButton.addEventListener("click", handleOutgoingMessage);
 
-// Adiciona eventos aos botões para abrir e fechar o chat
-sendMessageButton.addEventListener("click", (e) => handleOutgoingMessage(e));
-chatBotToggle.addEventListener("click", () => document.body.classList.toggle("show-chat"));
-closeChatBot.addEventListener("click", () => document.body.classList.remove("show-chat"));
+// Abrir/fechar chat
+chatBotToggle.addEventListener("click", () => {
+    document.body.classList.toggle("show-chat");
+});
+closeChatBot.addEventListener("click", () => {
+    document.body.classList.remove("show-chat");
+});
