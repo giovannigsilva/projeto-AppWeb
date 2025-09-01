@@ -10,6 +10,8 @@ const closeChatBot = document.querySelector("#close-chat");
 const chatPopup = document.querySelector(".chatbot-popup");
 const indexBody = document.querySelector(".index-body");
 const clearChatButton = document.querySelector("#clear-chat");
+// NOVO: Elemento do contador de caracteres
+const charCounter = document.querySelector(".char-counter");
 
 
 // Elementos do formulário de API
@@ -42,6 +44,30 @@ const createMessageElement = (content, ...classes) => {
     div.innerHTML = content;
     return div;
 };
+
+// NOVO: Função para adicionar o botão de copiar
+const addCopyButton = (messageDiv) => {
+    const messageTextElement = messageDiv.querySelector(".message-text");
+    if (!messageTextElement || messageDiv.classList.contains("thinking")) return;
+
+    const copyButton = document.createElement("button");
+    copyButton.className = "copy-btn material-symbols-rounded";
+    copyButton.textContent = "content_copy";
+
+    copyButton.addEventListener("click", () => {
+        navigator.clipboard.writeText(messageTextElement.innerText).then(() => {
+            copyButton.textContent = "check";
+            copyButton.classList.add("copied");
+            setTimeout(() => {
+                copyButton.textContent = "content_copy";
+                copyButton.classList.remove("copied");
+            }, 1500);
+        }).catch(err => console.error("Falha ao copiar texto: ", err));
+    });
+
+    messageDiv.appendChild(copyButton);
+};
+
 
 // Gera a resposta do bot
 const generateBotResponse = async (incomingMessageDiv) => {
@@ -127,6 +153,10 @@ const generateBotResponse = async (incomingMessageDiv) => {
             role: "assistant",
             content: apiResponseText
         });
+        
+        // Adiciona o botão de copiar após a resposta ser gerada
+        addCopyButton(incomingMessageDiv);
+
 
     } catch (error) {
         console.error(error);
@@ -154,7 +184,7 @@ const handleOutgoingMessage = (e) => {
     if (!userData.message) return;
 
     messageInput.value = "";
-    messageInput.dispatchEvent(new Event("input"));
+    messageInput.dispatchEvent(new Event("input")); // Atualiza altura e contador
 
     const messageContent = `<div class="message-text"></div>`;
     const outgoingMessageDiv = createMessageElement(messageContent, "user-message");
@@ -263,8 +293,14 @@ messageInput.addEventListener("keydown", (e) => {
 });
 
 messageInput.addEventListener("input", () => {
+    // Ajusta a altura do textarea
     messageInput.style.height = `${initialInputHeight}px`;
     messageInput.style.height = `${messageInput.scrollHeight}px`;
+
+    // NOVO: Atualiza o contador de caracteres
+    const currentLength = messageInput.value.length;
+    const maxLength = messageInput.getAttribute("maxlength");
+    charCounter.textContent = `${currentLength} / ${maxLength}`;
 });
 
 apiForm.addEventListener("submit", handleApiSubmit);
