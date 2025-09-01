@@ -276,6 +276,7 @@ body.show-chat .chatbot-popup {
     display: flex;
     gap: 11px;
     align-items: center;
+    position: relative; /* Para posicionar o botão de copiar */
 }
 
 .chat-body .bot-message .bot-avatar {
@@ -299,6 +300,7 @@ body.show-chat .chatbot-popup {
     padding: 12px 16px;
     max-width: 75%;
     font-size: 0.95rem;
+    word-wrap: break-word; /* Garante que o texto quebre a linha */
 }
 
 .chat-body .bot-message .message-text {
@@ -339,7 +341,8 @@ body.show-chat .chatbot-popup {
     bottom: 0;
     width: 100%;
     background: #FFF;
-    padding: 15px 22px 20px;
+    /* Ajustado o padding para acomodar o contador */
+    padding: 10px 22px 10px; 
 }
 
 .chat-footer .chat-form {
@@ -396,7 +399,6 @@ body.show-chat .chatbot-popup {
 
 .chat-form .chat-control #send-message {
     color: #fff;
-    display: none;
     background: #707ce7;
 }
 
@@ -412,19 +414,46 @@ body.show-chat .chatbot-popup {
     background: #f1f1ff;
 }
 
-em-emoji-picker {
-    position: absolute;
-    left: 50%;
-    top: -337px;
-    width: 100%;
-    max-width: 350px;
-    max-height: 330px;
-    visibility: hidden;
-    transform: translateX(-50%);
+/* --- ESTILOS PARA O CONTADOR DE CARACTERES --- */
+.char-counter {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 5px;
+    padding-right: 15px;
 }
 
-body.show-emoji em-emoji-picker {
-    visibility: visible;
+/* --- ESTILOS PARA O BOTÃO DE COPIAR --- */
+.copy-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px; 
+    border: none;
+    background: #e0e0e0;
+    color: #555;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; /* Começa invisível */
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.bot-message:hover .copy-btn {
+    opacity: 1; /* Aparece ao passar o mouse */
+}
+
+.copy-btn:hover {
+    background-color: #d0d0d0;
+}
+
+.copy-btn.copied {
+    background-color: #28a745;
+    color: #fff;
 }
 
 
