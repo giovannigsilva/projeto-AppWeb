@@ -34,7 +34,8 @@
                         </select>
                 </div>
                 <div class="api-txt-btn">
-                    <input type="text" class="api-input" required placeholder="Digite aqui a chave da API"></input>
+                    <!--Alterado type="text" para type="password" para mascarar a chave-->
+                    <input type="password" class="api-input" required placeholder="Digite aqui a chave da API"></input>
                     <button type="submit" id="send-api" class="material-symbols-rounded">check_circle</button>
                 </div>
             </form>
@@ -67,15 +68,14 @@
         </div>
         <div class="chat-footer">
             <form action="#" class="chat-form">
-                <textarea class="message-input" required placeholder="Digite aqui..."></textarea>
+                <textarea class="message-input" required placeholder="Digite aqui..." maxlength="2000"></textarea>
                 <div class="chat-control">
-                    <button type="button" id="emoji" class="material-symbols-rounded">sentiment_satisfied</button>
                     <button type="submit" id="send-message" class="material-symbols-rounded">arrow_upward</button>
                 </div>
             </form>
+            <div class="char-counter">0 / 2000</div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
     <script src="script.js"></script>
 </body>
 
