@@ -1,6 +1,7 @@
 // Ajustado por Giovanni Gustavo DESENVOLVE 3_5
 // Ajustado por Daniella Nunes DESENVOLVE 3_5
 // Ajustado por Denison Marques DESENVOLVE 3_5
+// Ajustado por Laíse Prando DESENVOLVE 3_4
 // Seleciona os elementos principais da interface do chat
 const messageInput = document.querySelector(".message-input");
 const chatBody = document.querySelector(".chat-body");
@@ -146,17 +147,21 @@ const generateBotResponse = async (incomingMessageDiv) => {
             apiResponseText = data.choices[0].message.content.trim();
         }
 
-        messageElement.innerHTML = ""; // Limpa a ampulheta
-        messageElement.innerText = apiResponseText;
+        // Crie o texto completo, com a resposta da IA
+        const fullResponseText = `${apiResponseText}`;
+        
+        // Converte o texto (incluindo o seu) de Markdown para HTML
+        const htmlContent = marked.parse(fullResponseText);
 
+        // Atualiza o elemento do chat usando .innerHTML para renderizar o HTML
+        messageElement.innerHTML = ""; // Limpa a ampulheta
+        messageElement.innerHTML = htmlContent;
+
+        // 4. Mantem o histórico com a resposta sem markedtext para a IA
         chatHistory.push({
             role: "assistant",
-            content: apiResponseText
+            content: apiResponseText 
         });
-        
-        // Adiciona o botão de copiar após a resposta ser gerada
-        addCopyButton(incomingMessageDiv);
-
 
     } catch (error) {
         console.error(error);
@@ -165,6 +170,10 @@ const generateBotResponse = async (incomingMessageDiv) => {
         messageElement.style.color = "#ff0000";
     } finally {
         incomingMessageDiv.classList.remove("thinking");
+
+        // Adiciona o botão de copiar após finalizar o thinking
+        addCopyButton(incomingMessageDiv);
+
         chatBody.scrollTo({
             top: chatBody.scrollHeight,
             behavior: "smooth"
